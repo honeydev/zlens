@@ -13,6 +13,11 @@ case class Parser[A, B](
     parse: (A) => Either[ParseError, (B, A)]
 )
 
+extension [A](p: Parser[String, A])
+
+  infix def `<|>`(p2: Parser[String, A]): Parser[String, A] =
+    orParser(p, p2)
+
 given functor[A]: Functor[[B] =>> Parser[A, B]] =
   new Functor[[B] =>> Parser[A, B]]:
 
@@ -91,11 +96,10 @@ def charParser(ch: Char): Parser[String, String] = {
   SatisfyParser { v => v == asStr }
 }
 
-def anySymbol: Parser[String, String] = {
+def anySymbol: Parser[String, String] =
   SatisfyParser { v =>
     true
   }
-}
 
 def nParser[A: Semigroup](p: Parser[String, A], n: Int): Parser[String, A] = {
   Parser { input =>
